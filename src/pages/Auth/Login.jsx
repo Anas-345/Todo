@@ -65,6 +65,16 @@ export default function Login() {
       </div>
 
       <p className="text-gray-500 text-sm text-center mt-4">
+        Forgot Password?{" "}
+        <span
+          className="text-indigo-400 hover:text-indigo-300 cursor-pointer"
+          onClick={() => handleRouter(navigate, "/auth/forgot-password")}
+        >
+          reset password
+        </span>
+      </p>
+
+      <p className="text-gray-500 text-sm text-center mt-4">
         Don't have an account?{" "}
         <span
           className="text-indigo-400 hover:text-indigo-300 cursor-pointer"
