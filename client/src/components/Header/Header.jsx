@@ -26,33 +26,6 @@ export default function Header() {
           Todo App
         </h1>
 
-        <nav>
-          <ul className="flex items-center gap-1">
-            {[
-              {
-                content: "Home",
-                path: "/",
-              },
-              {
-                content: "Dashboard",
-                path: "/dashboard",
-              },
-              {
-                content: "Todos",
-                path: "/todo",
-              },
-            ].map((item) => (
-              <li
-                key={item.content}
-                className="text-gray-400 hover:text-white hover:bg-gray-800 px-3 py-1.5 rounded-md text-sm transition-colors duration-150 cursor-pointer"
-                onClick={() => handleRouter(navigate, item.path)}
-              >
-                {item.content}
-              </li>
-            ))}
-          </ul>
-        </nav>
-
         <div className="flex items-center gap-2">
           {activeUser ? (
             <>
