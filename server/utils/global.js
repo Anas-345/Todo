@@ -4,4 +4,11 @@ const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 function isValidEmail(email) { return emailRegex.test(email) }
 
-export { getRandomId, isValidEmail }
+
+function validateString(str) {
+    str = str.trim()
+    if (str.length < 3 || str.length > 20) return false
+    return str
+}
+
+export { getRandomId, isValidEmail, validateString }

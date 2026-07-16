@@ -1,7 +1,7 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { compare, hash } from "bcrypt";
-import { getRandomId, isValidEmail } from "../utils/global.js";
+import { getRandomId, isValidEmail, validateString } from "../utils/global.js";
 import { configDotenv } from 'dotenv'
 import { verifyUser } from "../middleware/verifyUser.js";
 
@@ -15,9 +15,9 @@ const users = []
 router.post('/register', async (req, res) => {
     try {
         const { name, email, password } = req.body
-        const trimmedName = name.trim()
+        const trimmedName = validateString(name)
 
-        if (trimmedName.length < 3 || trimmedName.length > 20) return res.status(400).json({ message: 'Name must be between 3 to 20 chars.', isError: true })
+        if (!trimmedName) return res.status(400).json({ message: 'Name must be between 3 to 20 chars.', isError: true })
         if (!isValidEmail(email)) return res.status(400).json({ message: 'Invalid Email', isError: true })
         if (password.length < 6) return res.status(400).json({ message: 'Password must be greater than 6 chars.', isError: true })
 
@@ -61,7 +61,7 @@ router.get('/user', verifyUser, async (req, res) => {
         if (!user) return res.status(404).json({ message: "User not found", isError: true })
 
         const { password, ...userWithoutPassword } = user
-        return res.status(200).json({ message: 'User Found', user: userWithoutPassword  })
+        return res.status(200).json({ message: 'User Found', user: userWithoutPassword })
     } catch (error) {
         console.log('error', error)
         return res.status(500).json({ message: "Internal Error", isError: true })

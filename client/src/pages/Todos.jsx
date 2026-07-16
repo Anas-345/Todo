@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import InputField from "../components/InputField";
 import { toast } from "react-toastify";
 import { useTodo } from "../context/TodoContextProvider";
@@ -13,7 +13,7 @@ export default function Todos() {
     privacy: "private",
     schedule: "once",
   });
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const { todos, setTodos } = useTodo();
 
@@ -32,7 +32,7 @@ export default function Todos() {
       ...prev,
       [field]: value,
     }));
-    console.log('todo', todo)
+    console.log("todo", todo);
   }
 
   function handleClick(path) {
@@ -60,8 +60,8 @@ export default function Todos() {
         id: getRandomId(),
       },
     ]);
-    toast.success('Todo added successfully')
-    handleRouter(navigate, path)
+    toast.success("Todo added successfully");
+    handleRouter(navigate, path);
   }
 
   return (
@@ -147,7 +147,7 @@ export default function Todos() {
 
           <button
             className="mt-2 bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-md text-sm font-medium transition-colors duration-150 cursor-pointer"
-            onClick={()=>handleClick('/dashboard')}
+            onClick={() => handleClick("/dashboard")}
           >
             Add Todo
           </button>
