@@ -2,15 +2,12 @@ import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { compare, hash } from "bcrypt";
 import { getRandomId, isValidEmail, validateString } from "../utils/global.js";
-import { configDotenv } from 'dotenv'
 import { verifyUser } from "../middleware/verifyUser.js";
+import { Users } from "../models/auth.js";
 
 const router = Router()
-configDotenv()
 
 const { JWT_SECRET_KEY } = process.env
-
-const users = []
 
 router.post('/register', async (req, res) => {
     try {
@@ -21,10 +18,15 @@ router.post('/register', async (req, res) => {
         if (!isValidEmail(email)) return res.status(400).json({ message: 'Invalid Email', isError: true })
         if (password.length < 6) return res.status(400).json({ message: 'Password must be greater than 6 chars.', isError: true })
 
+        const duplicateEmail = await Users.findOne({ email })
+
+        if (duplicateEmail) return res.status(400).json({ message: 'Email already exists', isError: true })
+
         const hashedPassword = await hash(password, 10)
 
-        const user = { uid: getRandomId(), name: trimmedName, email, password: hashedPassword }
-        users.push(user)
+        const user = { name: trimmedName, email, password: hashedPassword, uid:getRandomId() }
+        await Users.create(user)
+
         return res.status(201).json({ message: 'User Registered successfully' })
     } catch (error) {
         console.log('error', error)
@@ -38,7 +40,7 @@ router.post('/login', async (req, res) => {
 
         if (!isValidEmail(email)) return res.status(400).json({ message: 'Invalid Email', isError: true })
 
-        const user = users.find(u => u.email === email)
+        const user = await Users.findOne({ email })
         if (!user) return res.status(404).json({ message: 'User not found', isError: true })
 
         const passwordMatch = await compare(password, user.password)
@@ -56,12 +58,11 @@ router.post('/login', async (req, res) => {
 router.get('/user', verifyUser, async (req, res) => {
     try {
         const { uid } = req
-        const user = users.find(u => u.uid === uid)
+        const user = await Users.findOne({ uid }).select('-password')
 
         if (!user) return res.status(404).json({ message: "User not found", isError: true })
 
-        const { password, ...userWithoutPassword } = user
-        return res.status(200).json({ message: 'User Found', user: userWithoutPassword })
+        return res.status(200).json({ message: 'User Found', user: user })
     } catch (error) {
         console.log('error', error)
         return res.status(500).json({ message: "Internal Error", isError: true })
