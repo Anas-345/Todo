@@ -1,9 +1,8 @@
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import InputField from "../../components/InputField";
-import { handleRouter } from "../../functions/handleRoute";
-import { useAuth } from "../../context/AuthContextProvider";
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { handleRegister } from "../../services/axios";
+import notification from "../../functions/notification";
 
 export default function Register() {
   const [user, setUser] = useState({
@@ -15,34 +14,29 @@ export default function Register() {
 
   const navigate = useNavigate();
 
-  const { users, setUsers } = useAuth();
-
   function handleChange(e, content) {
     setUser((prev) => ({ ...prev, [content.toLowerCase()]: e.target.value }));
   }
 
-  function handleClick(navigate, path) {
-    setUser((prev) => ({ ...prev, name: name.trim(), email: email.trim() }));
+  async function handleClick(path) {
+    let { name, email, password, confirm } = user;
 
-    const { name, email, password, confirm } = user;
+    name = name.trim();
+    email = email.trim();
 
-    const findEmail = users.find((user) => user.email === email);
-    if (!name || !email || !password || !confirm) {
-      toast.error("Please fill all input fields");
-      return;
-    } else if (password !== confirm) {
-      toast.error("Passwords are not same");
-      return;
-    } else if (findEmail) {
-      toast.error("User already exists");
-      return;
-    }
+    if (!name || !email || !password || !confirm)
+      return notification({
+        success: false,
+        message: "Please fill all input fields",
+      });
+    else if (password !== confirm)
+      return notification({
+        success: false,
+        message: "Passwords are not same",
+      });
 
-    setUsers((prev) => [
-      ...prev,
-      { name, email, password, createdAt: new Date().getTime(), active: false },
-    ]);
-    handleRouter(navigate, path);
+    const res = await handleRegister(name, email, password);
+    if (res) navigate(path);
   }
 
   return (
@@ -79,7 +73,7 @@ export default function Register() {
 
         <button
           className="mt-2 bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-md text-sm font-medium transition-colors duration-150 cursor-pointer"
-          onClick={() => handleClick(navigate, "/auth/login")}
+          onClick={() => handleClick("/auth/login")}
         >
           Register
         </button>
@@ -87,12 +81,12 @@ export default function Register() {
 
       <p className="text-gray-500 text-sm text-center mt-4">
         Already have an account?{" "}
-        <span
+        <Link
+          to="/auth/login"
           className="text-indigo-400 hover:text-indigo-300 cursor-pointer"
-          onClick={() => handleRouter(navigate, "/auth/login")}
         >
           Login
-        </span>
+        </Link>
       </p>
     </>
   );

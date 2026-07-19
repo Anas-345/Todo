@@ -2,9 +2,7 @@ import { Navigate, Outlet } from "react-router";
 import { useAuth } from "../context/AuthContextProvider";
 
 export default function ProtectedRoute() {
-  const { users } = useAuth();
-
-  const activeUser = users.find((u) => u.active);
-
-  return activeUser ? <Outlet /> : <Navigate to="/auth/login" replace />;
+  const { user } = useAuth();
+console.log('user', user)
+  return user ? <Outlet /> : <Navigate to="/auth/login" replace />;
 }

@@ -12,14 +12,14 @@ router.post('/add', verifyUser, async (req, res) => {
         name = validateString(name)
         description = validateString(description)
 
-        if (!name || !description) return res.status(400).json({ message: 'Please fill the input fields correctly' })
+        if (!name || !description) return res.status(400).json({ message: 'Please fill the input fields correctly', success: false })
 
-        const todo = { name, description, priority, privacy, schedule, uid, id:getRandomId() }
+        const todo = { name, description, priority, privacy, schedule, uid, id: getRandomId() }
         await Todos.create(todo)
-        return res.status(201).json({ message: 'Todo created successfully', todo })
+        return res.status(201).json({ message: 'Todo created successfully', todo, success: true })
     } catch (error) {
         console.log('error', error)
-        return res.status(500).json({ message: 'Internal Error', isError: true })
+        return res.status(500).json({ message: 'Internal Error', success: false })
     }
 })
 
@@ -29,20 +29,20 @@ router.get('/all', verifyUser, async (req, res) => {
         const { search } = req.query
         let filteredTodos = await Todos.find({ uid })
         if (search) filteredTodos = filteredTodos.filter(t => t.name.toLowerCase().includes(search.toLowerCase()))
-        return res.status(200).json({ message: 'Todo Loaded successfully', filteredTodos })
+        return res.status(200).json({ message: 'Todo Loaded successfully', filteredTodos, success: true })
     } catch (error) {
         console.log('error', error)
-        return res.status(500).json({ message: 'Internal Error', isError: true })
+        return res.status(500).json({ message: 'Internal Error', success: false })
     }
 })
 
 router.get('/public', async (req, res) => {
     try {
         const filteredTodos = await Todos.find({ privacy: 'public' })
-        return res.status(200).json({ message: 'Todo Loaded successfully', filteredTodos })
+        return res.status(200).json({ message: 'Todo Loaded successfully', filteredTodos, success: true })
     } catch (error) {
         console.log('error', error)
-        return res.status(500).json({ message: 'Internal Error', isError: true })
+        return res.status(500).json({ message: 'Internal Error', success: false })
     }
 })
 
@@ -53,23 +53,23 @@ router.put('/update', verifyUser, async (req, res) => {
 
         name = validateString(name)
         description = validateString(description)
-        if (!name || !description) return res.status(400).json({ message: 'Please fill the input fields correctly' })
+        if (!name || !description) return res.status(400).json({ message: 'Please fill the input fields correctly', success: false })
 
         const updatedTodo = await Todos.findOneAndUpdate(
             { id, uid },
             { name, description, priority, privacy, schedule },
-            { returnDocument: 'after', runValidators: true }
+            { returnDocument: 'after', runValidators: false }
         )
 
-        if (!updatedTodo) return res.status(404).json({ message: 'Todo not found.', isError: true })
-        return res.status(200).json({ message: "Todo updated successfully", updatedTodo })
+        if (!updatedTodo) return res.status(404).json({ message: 'Todo not found.', success: false })
+        return res.status(200).json({ message: "Todo updated successfully", updatedTodo, success: true })
     } catch (error) {
         console.log('error', error)
-        return res.status(500).json({ message: 'Internal Error', isError: true })
+        return res.status(500).json({ message: 'Internal Error', success: false })
     }
 })
 
-router.delete('/delete/:id', verifyUser, async(req, res) => {
+router.delete('/delete/:id', verifyUser, async (req, res) => {
     try {
         const { uid } = req
         const { id } = req.params
@@ -78,12 +78,12 @@ router.delete('/delete/:id', verifyUser, async(req, res) => {
             { id, uid }
         )
 
-        if (!deletedTodo) return res.status(404).json({ message: 'Todo not found', isError: true })
+        if (!deletedTodo) return res.status(404).json({ message: 'Todo not found', success: false })
 
         return res.status(204).end()
     } catch (error) {
         console.log('error', error)
-        return res.status(500).json({ message: 'Internal Error', isError: true })
+        return res.status(500).json({ message: 'Internal Error', success: false })
     }
 })
 

@@ -1,38 +1,37 @@
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import InputField from "../../components/InputField";
-import { handleRouter } from "../../functions/handleRoute";
-import { useAuth } from "../../context/AuthContextProvider";
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { handleLogin } from "../../services/axios";
+import notification from "../../functions/notification";
+import { useAuth } from "../../context/AuthContextProvider";
 
 export default function Login() {
-  const navigate = useNavigate();
   const [user, setUser] = useState({ email: "", password: "" });
-
-  const { users, setUsers } = useAuth();
+  const navigate = useNavigate();
+  const { readProfile } = useAuth();
 
   function handleChange(e, content) {
     setUser((prev) => ({ ...prev, [content.toLowerCase()]: e.target.value }));
   }
 
-  function handleClick(navigate, path) {
-    const findUser = users.find(
-      (u) => u.email === user.email && u.password === user.password,
-    );
-    if (!findUser) {
-      toast.error("Email or password is incorrect");
-      return;
-    }
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.email === findUser.email ? { ...u, active: true } : u,
-      ),
-    );
-    handleRouter(navigate, path);
+  async function handleClick(path) {
+    let { email, password } = user;
+    email = email.trim();
+
+    if (!email || !password)
+      return notification({
+        success: false,
+        message: "Please fill all input fields",
+      });
+    const token = await handleLogin(email, password);
+    if (!token) return;
+    localStorage.setItem("token", token);
+    readProfile(token);
+    navigate(path);
   }
   return (
     <>
-      <h1 className="text-2xl font-semibold text-white mb-6">Create Account</h1>
+      <h1 className="text-2xl font-semibold text-white mb-6">Welcome Back</h1>
 
       <div className="flex flex-col gap-4">
         {[
@@ -58,30 +57,20 @@ export default function Login() {
 
         <button
           className="mt-2 bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-md text-sm font-medium transition-colors duration-150 cursor-pointer"
-          onClick={() => handleClick(navigate, "/")}
+          onClick={() => handleClick("/")}
         >
           Login
         </button>
       </div>
 
       <p className="text-gray-500 text-sm text-center mt-4">
-        Forgot Password?{" "}
-        <span
-          className="text-indigo-400 hover:text-indigo-300 cursor-pointer"
-          onClick={() => handleRouter(navigate, "/auth/forgot-password")}
-        >
-          reset password
-        </span>
-      </p>
-
-      <p className="text-gray-500 text-sm text-center mt-4">
         Don't have an account?{" "}
-        <span
+        <Link
+          to="/auth/register"
           className="text-indigo-400 hover:text-indigo-300 cursor-pointer"
-          onClick={() => handleRouter(navigate, "/auth/register")}
         >
           Register
-        </span>
+        </Link>
       </p>
     </>
   );

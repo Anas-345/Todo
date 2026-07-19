@@ -7,11 +7,13 @@ configDotenv();
 import express from "express";
 import { authRouter } from "./routes/auth.js";
 import { connectDB } from "./config/db.js";
+import cors from 'cors'
 import { todoRouter } from "./routes/todos.js";
 
 const app = express();
 
 app.use(express.json());
+app.use(cors())
 
 connectDB();
 

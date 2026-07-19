@@ -2,19 +2,8 @@ import { useNavigate } from "react-router";
 import { handleRouter } from "../../functions/handleRoute";
 import { useAuth } from "../../context/AuthContextProvider";
 export default function Header() {
-  const { users, setUsers } = useAuth();
   const navigate = useNavigate();
-
-  const activeUser = users.find((u) => u.active);
-
-  function handleClick(navigate, path) {
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.email === activeUser.email ? { ...u, active: false } : u,
-      ),
-    );
-    handleRouter(navigate, path);
-  }
+  const { user, setUser } = useAuth();
 
   return (
     <header className="bg-gray-900 border-b border-gray-800 px-6 py-4">
@@ -27,12 +16,15 @@ export default function Header() {
         </h1>
 
         <div className="flex items-center gap-2">
-          {activeUser ? (
+          {user ? (
             <>
-              <h2>Welcome {activeUser.name}</h2>
+              <h2>Welcome {user.name}</h2>
               <button
                 className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-md text-sm font-medium transition-colors duration-150 cursor-pointer"
-                onClick={() => handleClick(navigate, "/auth/login")}
+                onClick={() => {
+                  localStorage.removeItem("token");
+                  setUser(null);
+                }}
               >
                 Logout
               </button>

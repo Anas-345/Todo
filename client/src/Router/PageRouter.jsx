@@ -12,10 +12,10 @@ export default function PageRouter() {
   return (
     <Routes>
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/todo" element={<Todos />} />
       </Route>
+      <Route path="/" element={<Home />} />
       <Route path="/auth" element={<Auth />}>
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
